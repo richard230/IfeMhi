@@ -1,0 +1,64 @@
+document.querySelector(".toggle-password").addEventListener("click", function() {
+    let passwordField = document.getElementById("password");
+    if (passwordField.type === "password") {
+        passwordField.type = "text";
+        this.innerHTML = '<i class="fas fa-eye-slash"></i> hide';
+    } else {
+        passwordField.type = "password";
+        this.innerHTML = '<i class="fas fa-eye"></i> show';
+    }
+});
+
+// Simulated student database
+const students = [
+    {
+        fullName: "KEHINDE CHUKWUDI MUHAMMAD",
+        class: "SS3",
+        arm: "Science",
+        parentName: "Master Rich",
+        parentPhone: "08012345678",
+        studentPhone: "08123456789",
+        email: "kehinde@gmail.com",
+        password: "pass123"
+    },
+    {
+        fullName: "JANET OKAFOR",
+        class: "SS2",
+        arm: "Arts",
+        parentName: "Mr. Okafor",
+        parentPhone: "08098765432",
+        studentPhone: "08134567890",
+        email: "janet.okafor@gmail.com",
+        password: "janet2024"
+    },
+    {
+        fullName: "AHMED BELLO",
+        class: "SS1",
+        arm: "Commercial",
+        parentName: "Mrs. Bello",
+        parentPhone: "08055556789",
+        studentPhone: "08123456701",
+        email: "ahmedbello@gmail.com",
+        password: "bello123"
+    }
+];
+
+document.querySelector(".login-form").addEventListener("submit", function(event) {
+    event.preventDefault();  // Prevent form from submitting traditionally
+
+    let email = document.getElementById("email").value.trim();
+    let password = document.getElementById("password").value.trim();
+
+    // Find student by email
+    let student = students.find(user => user.email === email && user.password === password);
+
+    if (student) {
+        // Save student data in session storage
+        sessionStorage.setItem("loggedInUser", JSON.stringify(student));
+
+        // Redirect to dashboard
+        window.location.href = "dashboard.html";
+    } else {
+        alert("Invalid email or password. Try again.");
+    }
+});
