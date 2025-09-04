@@ -1,145 +1,100 @@
 <!DOCTYPE html>
-<html lang="en" >
-<head>
-  <meta charset="UTF-8">
-  <title>Untitled</title>
-  <link rel="stylesheet" href="./style.css">
-
-</head>
-<body>
-<!-- partial:index.partial.html -->
-<!DOCTYPE html>
-<!-- Name Input Modal -->
-<div id="name-modal" class="modal">
-    <div class="modal-content">
-        <h3>Welcome to Class Assistant</h3>
-        <p>Please enter your full name to personalize your experience:</p>
-        <input type="text" id="student-name" placeholder="Enter your full name">
-        <button id="save-name-btn">Save</button>
-    </div>
-</div>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
-
-<!-- Welcome Message Modal -->
-<div id="welcome-modal" class="modal">
-    <div class="modal-content">
-        <h3 id="welcome-title">Welcome!</h3>
-        <p id="welcome-message"></p>
-        <button id="close-welcome-btn">Close</button>
-    </div>
-</div>
-
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Class Assistant</title>
-    <link rel="stylesheet" href="styles/styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mini Web Dev Console</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <header>
-        <h1>Class Assistant</h1>
-    </header>
+  <main class="page-content">
+    <h1>Mini Web Developer Console</h1>
+    <p>This page ships with an embedded dev console—open it with <kbd>Ctrl</kbd>+<kbd>`</kbd> or the bubble at the bottom-right.</p>
 
-    <main>
-        <!-- Student Records Section -->
-        <section id="students-section">
-            <h2>Student Records</h2>
-            <div id="student-controls">
-                <button id="add-student-btn">Add Student</button>
-                <button id="reset-filters-btn">Reset Filters</button>
-                <button id="export-student-pdf">Export PDF</button>
-            </div>
-            <table id="student-table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Name</th>
-                        <th>Payment Type</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </section>
-      <!-- Splash Screen -->
-<div id="splash-screen">
-    <div class="splash-content">
-        <h1>Welcome to Class Assistant</h1>
-        <p id="fun-fact"></p>
-    </div>
-</div>
+    <section class="playground">
+      <h2>Playground</h2>
+      <div class="btn-row">
+        <button id="btnFetch">Fetch JSON (fetch)</button>
+        <button id="btnXHR">Fetch JSON (XHR)</button>
+        <button id="btnImg">Load Image</button>
+        <button id="btnWS">Open WebSocket</button>
+        <button id="btnError">Throw Error</button>
+        <button id="btnReject">Unhandled Rejection</button>
+        <button id="btnLog">console.log burst</button>
+      </div>
+      <p>Try typing in the Console REPL: <code>await fetch('https://jsonplaceholder.typicode.com/todos/1').then(r=>r.json())</code></p>
+    </section>
+  </main>
 
-<!-- News Ticker -->
-<div id="news-ticker">
-    <div id="news-content"></div>
-</div>
+  <!-- DevConsole -->
+  <div id="devconsole-root" aria-live="polite" aria-label="Developer Console"></div>
+  <button id="devconsole-toggle" aria-controls="devconsole-root" aria-expanded="false" title="Toggle Dev Console (Ctrl+`)">🛠️</button>
 
-        <!-- Class Schedule Section -->
-        <section id="schedule-section">
-            <h2>Class Schedule</h2>
-            <button id="add-schedule-row">Add Row</button>
-            <table id="schedule-table">
-                <thead>
-                    <tr>
-                        <th>Day</th>
-                        <th>Course</th>
-                        <th>Time</th>
-                        <th>Venue</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </section>
+  <script src="app.js"></script>
+  <script>
+    // Demo buttons
+    const $ = sel => document.querySelector(sel);
 
-        <!-- Notes Section -->
-        <section id="notes-section">
-            <h2>Notes</h2>
-            <button id="add-note">Add Note</button>
-            <ul id="notes-list"></ul>
-        </section>
+    $('#btnFetch').addEventListener('click', async () => {
+      const res = await fetch('https://jsonplaceholder.typicode.com/posts/1', {headers:{'x-demo':'devconsole'}});
+      console.log('fetch JSON status', res.status);
+      const json = await res.json();
+      console.table(json);
+    });
 
-        <!-- Media Upload Section -->
-        <section id="media-section">
-          
-    <h2>Media Upload</h2>
-    <input type="file" id="media-upload" accept="image/*,video/*">
-    <div id="media-preview"></div>
-    <button id="clear-media">Clear</button>
-    <button id="save-media-btn">Save Media</button>
-    <ul id="saved-media-list"></ul>
-</section>
+    $('#btnXHR').addEventListener('click', () => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET','https://jsonplaceholder.typicode.com/todos/1');
+      xhr.setRequestHeader('x-demo','devconsole');
+      xhr.onload = () => console.log('XHR loaded', xhr.status, xhr.responseText.slice(0,60)+'...');
+      xhr.send();
+    });
 
-        </section>
-      <section id="documents-section">
-    <h2>Documents</h2>
-    <button id="save-doc-btn">Save Document</button>
-    <button id="view-doc-btn">View Documents</button>
+    $('#btnImg').addEventListener('click', () => {
+      const img = new Image();
+      img.alt = "Random placeholder";
+      img.src = 'https://picsum.photos/seed/' + Math.random().toString(36).slice(2) + '/200/150';
+      img.onload = () => console.info('Image loaded', img.naturalWidth, img.naturalHeight);
+      img.onerror = (e) => console.warn('Image failed', e.message || e);
+      document.body.appendChild(img);
+      setTimeout(()=>img.remove(), 3000);
+    });
 
-    <!-- Modal Box -->
-    <div id="document-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h3 id="modal-title"></h3>
-            <textarea id="document-textarea" placeholder="Write or paste your document here..."></textarea>
-            <button id="save-document-action">Save</button>
-            <ul id="document-list"></ul>
-        </div>
-    </div>
-</section>
+    let wsRef = null;
+    $('#btnWS').addEventListener('click', () => {
+      if (wsRef && wsRef.readyState === 1) {
+        wsRef.close(1000, 'User toggled');
+        return;
+      }
+      // Public echo server (simple, no auth). If blocked by network, it will just log the error.
+      wsRef = new WebSocket('wss://echo.websocket.events');
+      wsRef.addEventListener('open', () => {
+        console.log('[WS] open');
+        wsRef.send(JSON.stringify({type:'hello', t: Date.now()}));
+      });
+      wsRef.addEventListener('message', (ev) => console.log('[WS] message', ev.data));
+      wsRef.addEventListener('close', (ev) => console.log('[WS] close', ev.code, ev.reason));
+      wsRef.addEventListener('error', (ev) => console.error('[WS] error', ev));
+    });
 
-    </main>
+    $('#btnError').addEventListener('click', () => {
+      // generate a reference error
+      nonexistentFunctionCall();
+    });
 
+    $('#btnReject').addEventListener('click', () => {
+      Promise.reject(new Error('Simulated unhandled rejection'));
+    });
 
-    <script src="scripts/app.js"></script>
-</body>
-</html>
-<!-- partial -->
-  <script  src="./script.js"></script>
-
+    $('#btnLog').addEventListener('click', () => {
+      console.group('Burst logs');
+      console.log('Hello world', {a:1});
+      console.info('info message');
+      console.warn('warning!', [1,2,3]);
+      console.error('error!', new Error('boom'));
+      console.debug('debug secret');
+      console.groupEnd();
+    });
+  </script>
 </body>
 </html>
