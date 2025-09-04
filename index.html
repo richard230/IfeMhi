@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mini Web Dev Console</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="page-content">
+    <h1>Mini Web Developer Console</h1>
+    <p>This page ships with an embedded dev console—open it with <kbd>Ctrl</kbd>+<kbd>`</kbd> or the bubble at the bottom-right.</p>
+
+    <section class="playground">
+      <h2>Playground</h2>
+      <div class="btn-row">
+        <button id="btnFetch">Fetch JSON (fetch)</button>
+        <button id="btnXHR">Fetch JSON (XHR)</button>
+        <button id="btnImg">Load Image</button>
+        <button id="btnWS">Open WebSocket</button>
+        <button id="btnError">Throw Error</button>
+        <button id="btnReject">Unhandled Rejection</button>
+        <button id="btnLog">console.log burst</button>
+      </div>
+      <p>Try typing in the Console REPL: <code>await fetch('https://jsonplaceholder.typicode.com/todos/1').then(r=>r.json())</code></p>
+    </section>
+  </main>
+
+  <!-- DevConsole -->
+  <div id="devconsole-root" aria-live="polite" aria-label="Developer Console"></div>
+  <button id="devconsole-toggle" aria-controls="devconsole-root" aria-expanded="false" title="Toggle Dev Console (Ctrl+`)">🛠️</button>
+
+  <script src="app.js"></script>
+  <script>
+    // Demo buttons
+    const $ = sel => document.querySelector(sel);
+
+    $('#btnFetch').addEventListener('click', async () => {
+      const res = await fetch('https://jsonplaceholder.typicode.com/posts/1', {headers:{'x-demo':'devconsole'}});
+      console.log('fetch JSON status', res.status);
+      const json = await res.json();
+      console.table(json);
+    });
+
+    $('#btnXHR').addEventListener('click', () => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET','https://jsonplaceholder.typicode.com/todos/1');
+      xhr.setRequestHeader('x-demo','devconsole');
+      xhr.onload = () => console.log('XHR loaded', xhr.status, xhr.responseText.slice(0,60)+'...');
+      xhr.send();
+    });
+
+    $('#btnImg').addEventListener('click', () => {
+      const img = new Image();
+      img.alt = "Random placeholder";
+      img.src = 'https://picsum.photos/seed/' + Math.random().toString(36).slice(2) + '/200/150';
+      img.onload = () => console.info('Image loaded', img.naturalWidth, img.naturalHeight);
+      img.onerror = (e) => console.warn('Image failed', e.message || e);
+      document.body.appendChild(img);
+      setTimeout(()=>img.remove(), 3000);
+    });
+
+    let wsRef = null;
+    $('#btnWS').addEventListener('click', () => {
+      if (wsRef && wsRef.readyState === 1) {
+        wsRef.close(1000, 'User toggled');
+        return;
+      }
+      // Public echo server (simple, no auth). If blocked by network, it will just log the error.
+      wsRef = new WebSocket('wss://echo.websocket.events');
+      wsRef.addEventListener('open', () => {
+        console.log('[WS] open');
+        wsRef.send(JSON.stringify({type:'hello', t: Date.now()}));
+      });
+      wsRef.addEventListener('message', (ev) => console.log('[WS] message', ev.data));
+      wsRef.addEventListener('close', (ev) => console.log('[WS] close', ev.code, ev.reason));
+      wsRef.addEventListener('error', (ev) => console.error('[WS] error', ev));
+    });
+
+    $('#btnError').addEventListener('click', () => {
+      // generate a reference error
+      nonexistentFunctionCall();
+    });
+
+    $('#btnReject').addEventListener('click', () => {
+      Promise.reject(new Error('Simulated unhandled rejection'));
+    });
+
+    $('#btnLog').addEventListener('click', () => {
+      console.group('Burst logs');
+      console.log('Hello world', {a:1});
+      console.info('info message');
+      console.warn('warning!', [1,2,3]);
+      console.error('error!', new Error('boom'));
+      console.debug('debug secret');
+      console.groupEnd();
+    });
+  </script>
+</body>
+</html>
